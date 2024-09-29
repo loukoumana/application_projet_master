@@ -6,12 +6,13 @@ from sklearn.preprocessing import MinMaxScaler
 from datetime import datetime, timedelta
 import pandas as pd
 
-# Charger les données pour filtrer par produit
-data = pd.read_csv('fichier_filtre.csv')  # Chargez votre dataset ici
-
 # Sélecteur de produit
-product_options = data['commodity'].unique().tolist()  # Obtenez les produits uniques du dataset
-selected_product = st.selectbox("Choisissez le produit:", product_options)
+st.title("Systéme de prédiction des prix des produits agricoles")
+#product_options = data['commodity'].unique().tolist()  # Obtenez les produits uniques du dataset
+product_options = ['Mil', 'Sorgho', 'Maïs', 'Riz (importé)', 'Riz (local)', 'Soja','Arachide',
+                   'Ble', 'gari', 'Chou', 'Igname', 'Oignons', 'Tomates']
+
+selected_product = st.sidebar.selectbox("Choisissez le produit:", product_options)
 
 # Charger le modèle ARIMA et le scaler spécifique au produit sélectionné
 model_filename = f'arima_model_{selected_product}.pkl'  # Nommer les modèles selon les produits
@@ -20,33 +21,25 @@ model_filename = f'arima_model_{selected_product}.pkl'  # Nommer les modèles se
 with open(model_filename, 'rb') as file:
     loaded_model = pickle.load(file)
 
-#with open(scaler_filename, 'rb') as file:
- #   scaler = pickle.load(file)
-
 # Fonction pour effectuer les prédictions
 def predict_prices(days_to_predict, product):
     # Filtrer les données pour le produit sélectionné
-    product_data = data[data['commodity'] == product]
+    product_data =selected_product #data[data['commodity'] == product]
     
     # Prédiction basée sur les données filtrées
     forecast = loaded_model.forecast(steps=days_to_predict)
-
-    # Reshape pour le scaler
-  #  forecast_2D = np.repeat(forecast.values.reshape(-1, 1), 2, axis=1)
-   # forecast_origine = scaler.inverse_transform(forecast_2D).flatten()
-
     return forecast
 
 # Input du nombre de jours à prédire
-days_to_predict = st.number_input("Entrez le nombre de jours à prédire", min_value=1, max_value=30, value=7)
+days_to_predict = st.sidebar.number_input("Entrez le nombre de jours à prédire", min_value=1, max_value=30, value=7)
 
 # Bouton pour lancer la prédiction
-if st.button("Prédire"):
+if st.sidebar.button("Prédire"):
     current_date = datetime.now()
     forecast_prices = predict_prices(days_to_predict, selected_product)
 
     # Afficher les prédictions en chiffres
-    st.subheader(f"Prédictions des prix pour le {selected_product} pour les {days_to_predict} prochains jours :")
+    st.subheader(f"Prédiction des prix du {selected_product} pour les {days_to_predict} prochains jours :")
     predictions_data = []
 
     for i, price in enumerate(forecast_prices):
