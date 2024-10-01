@@ -48,7 +48,7 @@ if st.sidebar.button("Prédire"):
         st.write(f"{prediction_date.strftime('%Y-%m-%d')}: {price:.2f} fcfa/kg")
 
     # Graphique des prédictions
-    st.subheader("Graphique des prédictions :")
+    st.subheader(f"fluctuation du {selected_product} pour les {days_to_predict} prochains jours :")
     x_dates = [date for date, price in predictions_data]
     y_prices = [price for date, price in predictions_data]
 
